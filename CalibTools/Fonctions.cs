@@ -6,13 +6,25 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using System.Threading;
 
-    /// <summary>
-    /// Defines the <see cref="Fonctions" />
-    /// </summary>
     internal class Fonctions
     {
+        public static void Bump(int numDB)
+        {
+            // Initialisation
+            var res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[1]; // Buffer 1 byte
+
+            if (Main._statusConnection)
+            {
+                S7.SetBitAt(ref Buffer, 0, 2, true);
+                res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write DB_Diag.DBX150.2
+
+                //S7.SetBitAt(ref Buffer, 0, 2, false);
+                //res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write DB_Diag.DBX150.2
+            }
+        }
+
         public static bool CheckCon()
         {
             // Initialisation
@@ -26,40 +38,17 @@
                 return false;
         }
 
-        /// <summary>
-        /// The Reset
-        /// </summary>
-        public static void Reset()
+        public static int CheckDbsDiag(int numDB)
         {
             // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[1]; // Buffer 1 byte
+            int res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[1]; // Buffer
 
+            //
             if (Main._statusConnection)
-            {
-                S7.SetBitAt(ref Buffer, 0, 6, true);
-                res = Main.Client.DBWrite(94, 0, 1, Buffer); // Write DB94.DBX0.6
+                res = Main.Client.DBRead(numDB, 0, Buffer.Length, Buffer);
 
-                S7.SetBitAt(ref Buffer, 0, 6, false);
-                res = Main.Client.DBWrite(94, 0, 1, Buffer); // Write DB94.DBX0.6
-            }
-        }
-
-        public static void Bump(int numDB)
-        {
-            // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[1]; // Buffer 1 byte
-
-            if (Main._statusConnection)
-            {
-                S7.SetBitAt(ref Buffer, 0, 2, true);
-                res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write DB_Diag.DBX150.2
-
-
-                //S7.SetBitAt(ref Buffer, 0, 2, false);
-                //res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write DB_Diag.DBX150.2
-            }
+            return res;
         }
 
         public static void ForceOn(int numDB)
@@ -86,38 +75,6 @@
             }
         }
 
-        public static void StateMotor(int numDB)
-        {
-            // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[2]; // Buffer 2 bytes
-
-            if (Main._statusConnection)
-            {
-                res = Main.Client.DBRead(numDB, 80, 2, Buffer);    
-            }
-
-            BitArray arBits = new BitArray(Buffer); // Convert buffer bytes to array of bits
-            for (int i = 0; i < 15; i++)
-                Main._arStateMotor.Add(arBits.Get(i)); // Fill the array
-        }
-
-        public static float SpeedMotor(int numDB)
-        {
-            // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[4]; // Buffer 2 bytes
-
-            if (Main._statusConnection)
-            {
-                res = Main.Client.DBRead(numDB, 56, 4, Buffer);
-                return S7.GetRealAt(Buffer, 0);
-                //return 0;
-            }
-            else
-                return 0;           
-        }
-
         public static int IntensityMotor(int numDB)
         {
             // Initialisation
@@ -134,33 +91,52 @@
                 return 0;
         }
 
-        public static void WriteCalibSpeed(int numDB, int value)
+        public static void Reset()
         {
             // Initialisation
             var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[4]; // Buffer 2 bytes
+            byte[] Buffer = new byte[1]; // Buffer 1 byte
 
-            // On écrit la valeur dans le buffer
-            S7.SetDIntAt(Buffer, 0, value);
-
-            // Ecriture de la vitesse en mode forcé
             if (Main._statusConnection)
-                res = Main.Client.DBWrite(numDB, 104, Buffer.Length, Buffer);
+            {
+                S7.SetBitAt(ref Buffer, 0, 6, true);
+                res = Main.Client.DBWrite(94, 0, 1, Buffer); // Write DB94.DBX0.6
+
+                S7.SetBitAt(ref Buffer, 0, 6, false);
+                res = Main.Client.DBWrite(94, 0, 1, Buffer); // Write DB94.DBX0.6
+            }
         }
 
-        public static void WriteMesSpeed(int numDB, double value)
+        public static float SpeedMotor(int numDB)
         {
             // Initialisation
             var res = -1; // Résultat de la fonction
             byte[] Buffer = new byte[4]; // Buffer 2 bytes
 
-            // On écrit la valeur dans le buffer
-            float a = (float)value;
-            S7.SetRealAt(Buffer, 0, a);
-
-            // Ecriture de la vitesse en mode forcé
             if (Main._statusConnection)
-                res = Main.Client.DBWrite(numDB, 32, Buffer.Length, Buffer);
+            {
+                res = Main.Client.DBRead(numDB, 56, 4, Buffer);
+                return S7.GetRealAt(Buffer, 0);
+                //return 0;
+            }
+            else
+                return 0;
+        }
+
+        public static void StateMotor(int numDB)
+        {
+            // Initialisation
+            var res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[2]; // Buffer 2 bytes
+
+            if (Main._statusConnection)
+            {
+                res = Main.Client.DBRead(numDB, 80, 2, Buffer);
+            }
+
+            BitArray arBits = new BitArray(Buffer); // Convert buffer bytes to array of bits
+            for (int i = 0; i < 15; i++)
+                Main._arStateMotor.Add(arBits.Get(i)); // Fill the array
         }
 
         public static Double StrToDouble(string sVal, char Separator, long Precision)
@@ -173,17 +149,18 @@
             return Val / Precision;
         }
 
-        public static int CheckDbsDiag(int numDB)
+        public static void WriteCalibSpeed(int numDB, int value)
         {
             // Initialisation
-            int res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[1]; // Buffer
+            var res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[4]; // Buffer 2 bytes
 
-            // 
+            // On écrit la valeur dans le buffer
+            S7.SetDIntAt(Buffer, 0, value);
+
+            // Ecriture de la vitesse en mode forcé
             if (Main._statusConnection)
-                res = Main.Client.DBRead(numDB, 0, Buffer.Length, Buffer);
-
-            return res;
+                res = Main.Client.DBWrite(numDB, 104, Buffer.Length, Buffer);
         }
 
         public static void WriteListDbs(List<string> items)
@@ -200,6 +177,21 @@
             }
 
             resultFile.Close();
+        }
+
+        public static void WriteMesSpeed(int numDB, double value)
+        {
+            // Initialisation
+            var res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[4]; // Buffer 2 bytes
+
+            // On écrit la valeur dans le buffer
+            float a = (float)value;
+            S7.SetRealAt(Buffer, 0, a);
+
+            // Ecriture de la vitesse en mode forcé
+            if (Main._statusConnection)
+                res = Main.Client.DBWrite(numDB, 32, Buffer.Length, Buffer);
         }
     }
 }

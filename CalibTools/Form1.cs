@@ -10,43 +10,29 @@
 
     public partial class Main : Form
     {
+        public static List<bool> _arStateMotor = new List<bool>();
         public static bool _statusConnection;
 
+        public static BackgroundWorker bwDisplay = new BackgroundWorker();
+        public static BackgroundWorker bwWork = new BackgroundWorker();
+        public static S7Client Client = new S7Client();
+        public static List<string> listDbsDiag = new List<string>();
         private static bool bCheckAllDbsDiag;
 
-        private static bool bWriteReset;
-
         private static bool bWriteBump;
-
-        private static bool bWriteForceOn;
-
         private static bool bWriteCalibSpeed;
-
+        private static bool bWriteForceOn;
         private static bool bWriteMesSpeed;
-
+        private static bool bWriteReset;
+        private static double dintMotor;
+        private static double dspdMotor;
         private static int numDB;
 
         private static string spdMotor;
 
-        private Thread cpuThread;
-
         private double[] cpuArray = new double[60];
-
-        private static double dspdMotor;
-
+        private Thread cpuThread;
         private double[] intensityArray = new double[60];
-
-        private static double dintMotor;
-
-        public static List<string> listDbsDiag = new List<string>();
-
-        public static List<bool> _arStateMotor = new List<bool>();
-
-        public static BackgroundWorker bwDisplay = new BackgroundWorker();
-
-        public static BackgroundWorker bwWork = new BackgroundWorker();
-
-        public static S7Client Client = new S7Client();
 
         public Main()
         {
@@ -73,6 +59,90 @@
             bwWork.DoWork += new DoWorkEventHandler(bwWork_DoWork);
             //bwDisplay.ProgressChanged += new ProgressChangedEventHandler(bwDisplay_ProgressChanged);
             bwWork.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwWork_RunWorkerCompleted);
+        }
+
+        private void boxAdresseIp_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //    if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
+            //(e.KeyChar != '.'))
+            //    {
+            //        e.Handled = true;
+            //    }
+
+            //    // only allow one decimal point
+            //    if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -3))
+            //    {
+            //        e.Handled = true;
+            //    }
+        }
+
+        private void boxCalibSpeed_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void boxMesSpeed_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
+        (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+
+            // only allow one decimal point
+            if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void boxMotor_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            bWriteBump = true;
+            numDB = Int32.Parse("1" + boxMotor.Text);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bWriteForceOn = true;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            bWriteCalibSpeed = true;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            bWriteReset = true;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            bWriteMesSpeed = true;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            bCheckAllDbsDiag = true;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            cpuThread = new Thread(new ThreadStart(getPerformanceCounters));
+            cpuThread.IsBackground = true;
+            cpuThread.Start();
         }
 
         private void bwDisplay_DoWork(object sender, DoWorkEventArgs e)
@@ -147,7 +217,6 @@
                 // Check all Dbs diag
                 if (bCheckAllDbsDiag)
                 {
-
                     listDbsDiag.Clear();
                     for (int i = 100; i < 500; i++)
                     {
@@ -284,7 +353,6 @@
 
                 // Vitesse moteur
                 label5.Text = spdMotor;
-
             }
 
             if (!_statusConnection)
@@ -318,70 +386,6 @@
             sr.Close();
         }
 
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            bool threadActif = bwWork.IsBusy;
-
-            if (!threadActif)
-                bwWork.RunWorkerAsync();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            bWriteBump = true;
-            numDB = Int32.Parse("1" + boxMotor.Text);
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            bWriteReset = true;
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            bWriteForceOn = true;
-        }
-
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // Arrêt de la tâche de fond
-            cpuThread.Abort();
-            timer.Enabled = false;
-
-            // Disconnect from CPU
-            Client.Disconnect();
-
-            // Sauvegarde des valeurs
-            Properties.Settings.Default.Save();
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            bWriteCalibSpeed = true;
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            bWriteMesSpeed = true;
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-            bCheckAllDbsDiag = true;
-        }
-
-        private void listBox1_Click(object sender, EventArgs e)
-        {
-            if (listBox1.SelectedItem != null)
-            {
-                //MessageBox.Show(listBox1.SelectedItem.ToString());
-                string s = listBox1.SelectedItem.ToString();
-                string[] words = s.Split('°');
-                boxMotor.Text = words[1];
-
-            }
-        }
-
         private void getPerformanceCounters()
         {
             //var cpuPerfCounter = new PerformanceCounter("Processor Information", "% Processor Time", "_Total");
@@ -405,6 +409,38 @@
 
                 Thread.Sleep(1000);
             }
+        }
+
+        private void listBox1_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedItem != null)
+            {
+                //MessageBox.Show(listBox1.SelectedItem.ToString());
+                string s = listBox1.SelectedItem.ToString();
+                string[] words = s.Split('°');
+                boxMotor.Text = words[1];
+            }
+        }
+
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Arrêt de la tâche de fond
+            //cpuThread.Abort();
+            timer.Enabled = false;
+
+            // Disconnect from CPU
+            Client.Disconnect();
+
+            // Sauvegarde des valeurs
+            Properties.Settings.Default.Save();
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            bool threadActif = bwWork.IsBusy;
+
+            if (!threadActif)
+                bwWork.RunWorkerAsync();
         }
 
         private void UpdateCpuChart()
@@ -445,59 +481,6 @@
             //{
             //    chart2.Series["Series1"].Points.AddY(intensityArray[i]);
             //}
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-            cpuThread = new Thread(new ThreadStart(getPerformanceCounters));
-            cpuThread.IsBackground = true;
-            cpuThread.Start();
-        }
-
-        private void boxMesSpeed_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
-        (e.KeyChar != '.'))
-            {
-                e.Handled = true;
-            }
-
-            // only allow one decimal point
-            if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void boxCalibSpeed_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void boxMotor_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void boxAdresseIp_KeyPress(object sender, KeyPressEventArgs e)
-        {
-        //    if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
-        //(e.KeyChar != '.'))
-        //    {
-        //        e.Handled = true;
-        //    }
-
-        //    // only allow one decimal point
-        //    if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -3))
-        //    {
-        //        e.Handled = true;
-        //    }
         }
     }
 }
