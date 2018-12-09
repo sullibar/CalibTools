@@ -1,21 +1,21 @@
 ﻿namespace CalibTools
 {
+    using MaterialSkin;
     using Snap7;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Drawing;
-    using System.Threading;
     using System.Windows.Forms;
-    using MaterialSkin;
-    using MaterialSkin.Controls;
 
     public partial class Main : MaterialSkin.Controls.MaterialForm
     {
         public static List<bool> _arStateMotor = new List<bool>();
         public static bool _statusConnection;
+        public static double _dspdMotor;
+        public static double _dintMotor;
+        public static double _dspdFMotor;
 
-        public static BackgroundWorker bwDisplay = new BackgroundWorker();
         public static BackgroundWorker bwWork = new BackgroundWorker();
         public static S7Client Client = new S7Client();
         public static List<string> listDbsDiag = new List<string>();
@@ -26,14 +26,12 @@
         private static bool bWriteForceOn;
         private static bool bWriteMesSpeed;
         private static bool bWriteReset;
-        private static double dintMotor;
-        private static double dspdMotor;
+        private static string spdMotor;
+        private static string intMotor;
         private static int numDB;
 
-        private static string spdMotor;
-
         // Charts
-        private double[] cpuArray = new double[60];
+        private double[] spdArray = new double[60];
         private double[] intensityArray = new double[60];
 
         public Main()
@@ -90,14 +88,30 @@
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void btnBump_Click(object sender, EventArgs e)
         {
-            
+            bWriteBump = true;
+            numDB = Int32.Parse("1" + boxMotor.Text);
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void btnForceOn_Click(object sender, EventArgs e)
         {
-            
+            bWriteForceOn = true;
+        }
+
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            bWriteReset = true;
+        }
+
+        private void btnScan_Click(object sender, EventArgs e)
+        {
+            bCheckAllDbsDiag = true;
+        }
+
+        private void btnWriteSpd_Click(object sender, EventArgs e)
+        {
+            bWriteMesSpeed = true;
         }
 
         private void bwWork_DoWork(object sender, DoWorkEventArgs e)
@@ -120,9 +134,8 @@
                 numDB = Int32.Parse("1" + boxMotor.Text);
                 _arStateMotor.Clear();
                 Fonctions.StateMotor(numDB);
-                spdMotor = Fonctions.SpeedMotor(numDB).ToString("0.00") + " M/min";
-                dspdMotor = Fonctions.SpeedMotor(numDB);
-                dintMotor = Fonctions.IntensityMotor(numDB) / 10;
+                spdMotor = _dspdMotor.ToString("0.00") + " M/min";
+                intMotor = _dintMotor.ToString("00");
 
                 // Ecriture dans PLC
                 if (bWriteReset)
@@ -146,17 +159,14 @@
                 if (bWriteCalibSpeed)
                 {
                     bWriteCalibSpeed = false;
-                    Fonctions.WriteCalibSpeed(numDB, Int32.Parse(boxCalibSpeed.Text));
+                    Fonctions.WriteCalibSpeed(numDB, progressBarSpdF.Value*100);
                 }
 
                 if (bWriteMesSpeed)
                 {
                     bWriteMesSpeed = false;
-                    //float temp = (float) Convert.ToDouble(boxMesSpeed.Text);
-                    Double monSalaire = Fonctions.StrToDouble(boxMesSpeed.Text, '.', 100);
-                    //string s = string.Format("{0:G}", value);
-                    //float.Parse(boxMesSpeed.Text)
-                    Fonctions.WriteMesSpeed(numDB, monSalaire);
+                    Double dtemp = Fonctions.StrToDouble(boxMesSpeed.Text, '.', 100);
+                    Fonctions.WriteMesSpeed(numDB, dtemp);
                 }
 
                 // Check all Dbs diag
@@ -175,10 +185,10 @@
             }
 
             // Charts
-            cpuArray[cpuArray.Length - 1] = Math.Round(dspdMotor, 0);
-            Array.Copy(cpuArray, 1, cpuArray, 0, cpuArray.Length - 1);
+            spdArray[spdArray.Length - 1] = Math.Round(_dspdMotor, 0);
+            Array.Copy(spdArray, 1, spdArray, 0, spdArray.Length - 1);
 
-            intensityArray[intensityArray.Length - 1] = Math.Round(dintMotor, 0);
+            intensityArray[intensityArray.Length - 1] = Math.Round(_dintMotor, 0);
             Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
         }
 
@@ -303,10 +313,12 @@
                     Fonctions.WriteListDbs(listDbsDiag);
                 }
 
-                // Vitesse moteur
+                // Etat moteur
                 lblSpeed.Text = "Vitesse:" + spdMotor;
-
-                
+                lblInt.Text = "Intensité:" + intMotor; 
+                progressBarSpdF.Value = (int)_dspdFMotor;
+                circIntMotor.Text = intMotor;
+                circIntMotor.Value = (int)Math.Round(_dintMotor, 0);
             }
 
             if (!_statusConnection)
@@ -323,7 +335,7 @@
             }
 
             // Charts
-            if (cpuChart.IsHandleCreated)
+            if (spdChart.IsHandleCreated)
             {
                 Invoke((MethodInvoker)delegate { UpdateCpuChart(); });
             }
@@ -384,55 +396,41 @@
 
         private void UpdateCpuChart()
         {
-            cpuChart.Series["Series1"].Points.Clear();
-            cpuChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            cpuChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            cpuChart.BackColor = Color.Transparent;
-            cpuChart.Series[0].IsVisibleInLegend = false;
-            cpuChart.ChartAreas[0].BackColor = Color.Transparent;
+            spdChart.Series["Series1"].Points.Clear();
+            spdChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
+            spdChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
+            spdChart.BackColor = Color.Transparent;
+            spdChart.Series[0].IsVisibleInLegend = false;
+            spdChart.ChartAreas[0].BackColor = Color.Transparent;
 
-            for (int i = 0; i < cpuArray.Length - 1; ++i)
+            for (int i = 0; i < spdArray.Length - 1; ++i)
             {
-                cpuChart.Series["Series1"].Points.AddY(cpuArray[i]);
+                spdChart.Series["Series1"].Points.AddY(spdArray[i]);
             }
 
-            chart2.Series["Series1"].Points.Clear();
-            chart2.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            chart2.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            chart2.BackColor = Color.Transparent;
-            chart2.Series[0].IsVisibleInLegend = false;
-            chart2.ChartAreas[0].BackColor = Color.Transparent;
+            intChart.Series["Series1"].Points.Clear();
+            intChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
+            intChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
+            intChart.BackColor = Color.Transparent;
+            intChart.Series[0].IsVisibleInLegend = false;
+            intChart.ChartAreas[0].BackColor = Color.Transparent;
 
             for (int i = 0; i < intensityArray.Length - 1; ++i)
             {
-                chart2.Series["Series1"].Points.AddY(intensityArray[i]);
+                intChart.Series["Series1"].Points.AddY(intensityArray[i]);
             }
         }
 
-        private void btnBump_Click(object sender, EventArgs e)
+        private void materialFlatButton2_Click(object sender, EventArgs e)
         {
-            bWriteBump = true;
-            numDB = Int32.Parse("1" + boxMotor.Text);
+            progressBarSpdF.Value = progressBarSpdF.Value + 10;
+            bWriteCalibSpeed = true;
         }
 
-        private void btnForceOn_Click(object sender, EventArgs e)
+        private void materialFlatButton1_Click(object sender, EventArgs e)
         {
-            bWriteForceOn = true;
-        }
-
-        private void btnReset_Click(object sender, EventArgs e)
-        {
-            bWriteReset = true;
-        }
-
-        private void btnScan_Click(object sender, EventArgs e)
-        {
-            bCheckAllDbsDiag = true;
-        }
-
-        private void btnWriteSpd_Click(object sender, EventArgs e)
-        {
-            bWriteMesSpeed = true;
+            progressBarSpdF.Value = progressBarSpdF.Value - 10;
+            bWriteCalibSpeed = true;
         }
     }
 }

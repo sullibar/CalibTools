@@ -50,30 +50,28 @@
             this.lblMot8 = new System.Windows.Forms.Label();
             this.lblMot9 = new System.Windows.Forms.Label();
             this.boxMotor = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.boxCalibSpeed = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.cpuChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.chart2 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.spdChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.intChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.boxAdresseIp = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.lblSpeed = new MaterialSkin.Controls.MaterialLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.circIntMotor = new CircularProgressBar.CircularProgressBar();
+            this.btnWriteSpd = new MaterialSkin.Controls.MaterialFlatButton();
             this.boxMesSpeed = new MaterialSkin.Controls.MaterialSingleLineTextField();
-            this.materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
+            this.lblInt = new MaterialSkin.Controls.MaterialLabel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnScan = new MaterialSkin.Controls.MaterialFlatButton();
             this.materialFlatButton2 = new MaterialSkin.Controls.MaterialFlatButton();
             this.btnReset = new MaterialSkin.Controls.MaterialFlatButton();
             this.materialFlatButton1 = new MaterialSkin.Controls.MaterialFlatButton();
             this.materialFlatButton3 = new MaterialSkin.Controls.MaterialFlatButton();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.progressBarSpdF = new System.Windows.Forms.ProgressBar();
             this.btnForceOn = new MaterialSkin.Controls.MaterialFlatButton();
             this.btnBump = new MaterialSkin.Controls.MaterialFlatButton();
-            this.btnWriteSpd = new MaterialSkin.Controls.MaterialFlatButton();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cpuChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spdChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.intChart)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -82,7 +80,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(935, 636);
+            this.label2.Location = new System.Drawing.Point(1229, 687);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(52, 17);
             this.label2.TabIndex = 2;
@@ -207,43 +205,13 @@
             // 
             this.boxMotor.BackColor = System.Drawing.Color.White;
             this.boxMotor.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::CalibTools.Properties.Settings.Default, "Num_moteur", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.boxMotor.Location = new System.Drawing.Point(938, 656);
+            this.boxMotor.Location = new System.Drawing.Point(1232, 707);
             this.boxMotor.MaxLength = 3;
             this.boxMotor.Name = "boxMotor";
             this.boxMotor.Size = new System.Drawing.Size(100, 22);
             this.boxMotor.TabIndex = 3;
             this.boxMotor.Text = global::CalibTools.Properties.Settings.Default.Num_moteur;
             this.boxMotor.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.boxMotor_KeyPress);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(1093, 636);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(129, 17);
-            this.label4.TabIndex = 21;
-            this.label4.Text = "Calibration setpoint";
-            // 
-            // boxCalibSpeed
-            // 
-            this.boxCalibSpeed.BackColor = System.Drawing.Color.White;
-            this.boxCalibSpeed.Location = new System.Drawing.Point(1096, 656);
-            this.boxCalibSpeed.MaxLength = 4;
-            this.boxCalibSpeed.Name = "boxCalibSpeed";
-            this.boxCalibSpeed.Size = new System.Drawing.Size(100, 22);
-            this.boxCalibSpeed.TabIndex = 22;
-            this.boxCalibSpeed.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.boxCalibSpeed_KeyPress);
-            // 
-            // button4
-            // 
-            this.button4.BackColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(1203, 656);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(32, 23);
-            this.button4.TabIndex = 23;
-            this.button4.Text = "=>";
-            this.button4.UseVisualStyleBackColor = false;
             // 
             // listBox1
             // 
@@ -257,47 +225,47 @@
             this.listBox1.Click += new System.EventHandler(this.listBox1_Click);
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_Click);
             // 
-            // cpuChart
+            // spdChart
             // 
             chartArea1.BackColor = System.Drawing.Color.Transparent;
             chartArea1.Name = "ChartArea1";
-            this.cpuChart.ChartAreas.Add(chartArea1);
+            this.spdChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            this.cpuChart.Legends.Add(legend1);
-            this.cpuChart.Location = new System.Drawing.Point(255, 75);
-            this.cpuChart.Margin = new System.Windows.Forms.Padding(4);
-            this.cpuChart.Name = "cpuChart";
+            this.spdChart.Legends.Add(legend1);
+            this.spdChart.Location = new System.Drawing.Point(255, 75);
+            this.spdChart.Margin = new System.Windows.Forms.Padding(4);
+            this.spdChart.Name = "spdChart";
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
             series1.Color = System.Drawing.Color.Red;
             series1.IsVisibleInLegend = false;
             series1.Legend = "Legend1";
             series1.Name = "Series1";
-            this.cpuChart.Series.Add(series1);
-            this.cpuChart.Size = new System.Drawing.Size(1082, 261);
-            this.cpuChart.TabIndex = 30;
-            this.cpuChart.Text = "chart1";
+            this.spdChart.Series.Add(series1);
+            this.spdChart.Size = new System.Drawing.Size(1082, 261);
+            this.spdChart.TabIndex = 30;
+            this.spdChart.Text = "chart1";
             // 
-            // chart2
+            // intChart
             // 
             chartArea2.BackColor = System.Drawing.Color.Transparent;
             chartArea2.Name = "ChartArea1";
-            this.chart2.ChartAreas.Add(chartArea2);
+            this.intChart.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
-            this.chart2.Legends.Add(legend2);
-            this.chart2.Location = new System.Drawing.Point(255, 343);
-            this.chart2.Margin = new System.Windows.Forms.Padding(4);
-            this.chart2.Name = "chart2";
+            this.intChart.Legends.Add(legend2);
+            this.intChart.Location = new System.Drawing.Point(255, 343);
+            this.intChart.Margin = new System.Windows.Forms.Padding(4);
+            this.intChart.Name = "intChart";
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
             series2.Color = System.Drawing.Color.Red;
             series2.IsVisibleInLegend = false;
             series2.Legend = "Legend1";
             series2.Name = "Series1";
-            this.chart2.Series.Add(series2);
-            this.chart2.Size = new System.Drawing.Size(1079, 261);
-            this.chart2.TabIndex = 32;
-            this.chart2.Text = "chart1";
+            this.intChart.Series.Add(series2);
+            this.intChart.Size = new System.Drawing.Size(1079, 261);
+            this.intChart.TabIndex = 32;
+            this.intChart.Text = "chart1";
             // 
             // boxAdresseIp
             // 
@@ -305,7 +273,7 @@
             this.boxAdresseIp.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::CalibTools.Properties.Settings.Default, "Adresse_ip", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.boxAdresseIp.Depth = 0;
             this.boxAdresseIp.Hint = "";
-            this.boxAdresseIp.Location = new System.Drawing.Point(1091, 758);
+            this.boxAdresseIp.Location = new System.Drawing.Point(1190, 755);
             this.boxAdresseIp.MouseState = MaterialSkin.MouseState.HOVER;
             this.boxAdresseIp.Name = "boxAdresseIp";
             this.boxAdresseIp.PasswordChar = '\0';
@@ -334,9 +302,10 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.White;
+            this.groupBox1.Controls.Add(this.circIntMotor);
             this.groupBox1.Controls.Add(this.btnWriteSpd);
             this.groupBox1.Controls.Add(this.boxMesSpeed);
-            this.groupBox1.Controls.Add(this.materialLabel2);
+            this.groupBox1.Controls.Add(this.lblInt);
             this.groupBox1.Controls.Add(this.lblMot1);
             this.groupBox1.Controls.Add(this.lblMot2);
             this.groupBox1.Controls.Add(this.lblSpeed);
@@ -349,16 +318,67 @@
             this.groupBox1.Controls.Add(this.lblMot9);
             this.groupBox1.Location = new System.Drawing.Point(257, 612);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(644, 195);
+            this.groupBox1.Size = new System.Drawing.Size(927, 195);
             this.groupBox1.TabIndex = 36;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Etat du moteur";
+            // 
+            // circIntMotor
+            // 
+            this.circIntMotor.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.circIntMotor.AnimationFunction = WinFormAnimation.KnownAnimationFunctions.Liner;
+            this.circIntMotor.AnimationSpeed = 500;
+            this.circIntMotor.BackColor = System.Drawing.Color.Transparent;
+            this.circIntMotor.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold);
+            this.circIntMotor.ForeColor = System.Drawing.Color.Gray;
+            this.circIntMotor.InnerColor = System.Drawing.Color.White;
+            this.circIntMotor.InnerMargin = 0;
+            this.circIntMotor.InnerWidth = 0;
+            this.circIntMotor.Location = new System.Drawing.Point(640, 16);
+            this.circIntMotor.Margin = new System.Windows.Forms.Padding(4);
+            this.circIntMotor.MarqueeAnimationSpeed = 2000;
+            this.circIntMotor.Name = "circIntMotor";
+            this.circIntMotor.OuterColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(195)))), ((int)(((byte)(195)))));
+            this.circIntMotor.OuterMargin = -17;
+            this.circIntMotor.OuterWidth = 17;
+            this.circIntMotor.ProgressColor = System.Drawing.Color.FromArgb(((int)(((byte)(137)))), ((int)(((byte)(64)))), ((int)(((byte)(169)))));
+            this.circIntMotor.ProgressWidth = 17;
+            this.circIntMotor.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.circIntMotor.SecondaryFont = new System.Drawing.Font("Microsoft Sans Serif", 15.75F);
+            this.circIntMotor.Size = new System.Drawing.Size(157, 161);
+            this.circIntMotor.StartAngle = 270;
+            this.circIntMotor.SubscriptColor = System.Drawing.Color.Gray;
+            this.circIntMotor.SubscriptMargin = new System.Windows.Forms.Padding(5, -20, 0, 0);
+            this.circIntMotor.SubscriptText = "";
+            this.circIntMotor.SuperscriptColor = System.Drawing.Color.Gray;
+            this.circIntMotor.SuperscriptMargin = new System.Windows.Forms.Padding(8, 20, 0, 0);
+            this.circIntMotor.SuperscriptText = "%";
+            this.circIntMotor.TabIndex = 40;
+            this.circIntMotor.Text = "75";
+            this.circIntMotor.TextMargin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.circIntMotor.Value = 75;
+            // 
+            // btnWriteSpd
+            // 
+            this.btnWriteSpd.AutoSize = true;
+            this.btnWriteSpd.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnWriteSpd.Depth = 0;
+            this.btnWriteSpd.Location = new System.Drawing.Point(508, 139);
+            this.btnWriteSpd.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.btnWriteSpd.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnWriteSpd.Name = "btnWriteSpd";
+            this.btnWriteSpd.Primary = false;
+            this.btnWriteSpd.Size = new System.Drawing.Size(32, 36);
+            this.btnWriteSpd.TabIndex = 37;
+            this.btnWriteSpd.Text = "=>";
+            this.btnWriteSpd.UseVisualStyleBackColor = true;
+            this.btnWriteSpd.Click += new System.EventHandler(this.btnWriteSpd_Click);
             // 
             // boxMesSpeed
             // 
             this.boxMesSpeed.Depth = 0;
             this.boxMesSpeed.Hint = "Vitesse mesurée";
-            this.boxMesSpeed.Location = new System.Drawing.Point(301, 119);
+            this.boxMesSpeed.Location = new System.Drawing.Point(301, 149);
             this.boxMesSpeed.MouseState = MaterialSkin.MouseState.HOVER;
             this.boxMesSpeed.Name = "boxMesSpeed";
             this.boxMesSpeed.PasswordChar = '\0';
@@ -370,19 +390,19 @@
             this.boxMesSpeed.UseSystemPasswordChar = false;
             this.boxMesSpeed.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.boxMesSpeed_KeyPress);
             // 
-            // materialLabel2
+            // lblInt
             // 
-            this.materialLabel2.AutoSize = true;
-            this.materialLabel2.BackColor = System.Drawing.Color.White;
-            this.materialLabel2.Depth = 0;
-            this.materialLabel2.Font = new System.Drawing.Font("Roboto", 11F);
-            this.materialLabel2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.materialLabel2.Location = new System.Drawing.Point(297, 60);
-            this.materialLabel2.MouseState = MaterialSkin.MouseState.HOVER;
-            this.materialLabel2.Name = "materialLabel2";
-            this.materialLabel2.Size = new System.Drawing.Size(87, 24);
-            this.materialLabel2.TabIndex = 35;
-            this.materialLabel2.Text = "Intensité:";
+            this.lblInt.AutoSize = true;
+            this.lblInt.BackColor = System.Drawing.Color.White;
+            this.lblInt.Depth = 0;
+            this.lblInt.Font = new System.Drawing.Font("Roboto", 11F);
+            this.lblInt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.lblInt.Location = new System.Drawing.Point(297, 60);
+            this.lblInt.MouseState = MaterialSkin.MouseState.HOVER;
+            this.lblInt.Name = "lblInt";
+            this.lblInt.Size = new System.Drawing.Size(87, 24);
+            this.lblInt.TabIndex = 35;
+            this.lblInt.Text = "Intensité:";
             // 
             // groupBox2
             // 
@@ -392,7 +412,7 @@
             this.groupBox2.Controls.Add(this.btnReset);
             this.groupBox2.Controls.Add(this.materialFlatButton1);
             this.groupBox2.Controls.Add(this.materialFlatButton3);
-            this.groupBox2.Controls.Add(this.progressBar1);
+            this.groupBox2.Controls.Add(this.progressBarSpdF);
             this.groupBox2.Controls.Add(this.btnForceOn);
             this.groupBox2.Controls.Add(this.btnBump);
             this.groupBox2.Location = new System.Drawing.Point(257, 813);
@@ -432,6 +452,7 @@
             this.materialFlatButton2.TabIndex = 40;
             this.materialFlatButton2.Text = "+";
             this.materialFlatButton2.UseVisualStyleBackColor = true;
+            this.materialFlatButton2.Click += new System.EventHandler(this.materialFlatButton2_Click);
             // 
             // btnReset
             // 
@@ -463,6 +484,7 @@
             this.materialFlatButton1.TabIndex = 39;
             this.materialFlatButton1.Text = "-";
             this.materialFlatButton1.UseVisualStyleBackColor = true;
+            this.materialFlatButton1.Click += new System.EventHandler(this.materialFlatButton1_Click);
             // 
             // materialFlatButton3
             // 
@@ -479,13 +501,14 @@
             this.materialFlatButton3.Text = "Force calibration";
             this.materialFlatButton3.UseVisualStyleBackColor = true;
             // 
-            // progressBar1
+            // progressBarSpdF
             // 
-            this.progressBar1.Location = new System.Drawing.Point(521, 33);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(311, 23);
-            this.progressBar1.TabIndex = 38;
-            this.progressBar1.Value = 50;
+            this.progressBarSpdF.Location = new System.Drawing.Point(521, 33);
+            this.progressBarSpdF.MarqueeAnimationSpeed = 0;
+            this.progressBarSpdF.Name = "progressBarSpdF";
+            this.progressBarSpdF.Size = new System.Drawing.Size(311, 23);
+            this.progressBarSpdF.TabIndex = 38;
+            this.progressBarSpdF.Value = 50;
             // 
             // btnForceOn
             // 
@@ -519,22 +542,6 @@
             this.btnBump.UseVisualStyleBackColor = true;
             this.btnBump.Click += new System.EventHandler(this.btnBump_Click);
             // 
-            // btnWriteSpd
-            // 
-            this.btnWriteSpd.AutoSize = true;
-            this.btnWriteSpd.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnWriteSpd.Depth = 0;
-            this.btnWriteSpd.Location = new System.Drawing.Point(508, 109);
-            this.btnWriteSpd.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.btnWriteSpd.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnWriteSpd.Name = "btnWriteSpd";
-            this.btnWriteSpd.Primary = false;
-            this.btnWriteSpd.Size = new System.Drawing.Size(32, 36);
-            this.btnWriteSpd.TabIndex = 37;
-            this.btnWriteSpd.Text = "=>";
-            this.btnWriteSpd.UseVisualStyleBackColor = true;
-            this.btnWriteSpd.Click += new System.EventHandler(this.btnWriteSpd_Click);
-            // 
             // Main
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -543,12 +550,9 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.boxAdresseIp);
-            this.Controls.Add(this.chart2);
-            this.Controls.Add(this.cpuChart);
+            this.Controls.Add(this.intChart);
+            this.Controls.Add(this.spdChart);
             this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.boxCalibSpeed);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.boxMotor);
             this.Controls.Add(this.label2);
@@ -560,8 +564,8 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cpuChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spdChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.intChart)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -586,27 +590,25 @@
         private System.Windows.Forms.Label lblMot7;
         private System.Windows.Forms.Label lblMot8;
         private System.Windows.Forms.Label lblMot9;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox boxCalibSpeed;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.DataVisualization.Charting.Chart cpuChart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
+        private System.Windows.Forms.DataVisualization.Charting.Chart spdChart;
+        private System.Windows.Forms.DataVisualization.Charting.Chart intChart;
         private MaterialSkin.Controls.MaterialSingleLineTextField boxAdresseIp;
         private MaterialSkin.Controls.MaterialLabel lblSpeed;
         private System.Windows.Forms.GroupBox groupBox1;
-        private MaterialSkin.Controls.MaterialLabel materialLabel2;
+        private MaterialSkin.Controls.MaterialLabel lblInt;
         private System.Windows.Forms.GroupBox groupBox2;
         private MaterialSkin.Controls.MaterialFlatButton btnBump;
         private MaterialSkin.Controls.MaterialFlatButton btnReset;
         private MaterialSkin.Controls.MaterialFlatButton materialFlatButton3;
         private MaterialSkin.Controls.MaterialFlatButton btnForceOn;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar progressBarSpdF;
         private MaterialSkin.Controls.MaterialFlatButton materialFlatButton1;
         private MaterialSkin.Controls.MaterialFlatButton materialFlatButton2;
         private MaterialSkin.Controls.MaterialFlatButton btnScan;
         private MaterialSkin.Controls.MaterialSingleLineTextField boxMesSpeed;
         private MaterialSkin.Controls.MaterialFlatButton btnWriteSpd;
+        private CircularProgressBar.CircularProgressBar circIntMotor;
     }
 }
 

@@ -75,22 +75,6 @@
             }
         }
 
-        public static int IntensityMotor(int numDB)
-        {
-            // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[2]; // Buffer 2 bytes
-
-            if (Main._statusConnection)
-            {
-                res = Main.Client.DBRead(numDB, 62, 2, Buffer);
-                return S7.GetIntAt(Buffer, 0);
-                //return 0;
-            }
-            else
-                return 0;
-        }
-
         public static void Reset()
         {
             // Initialisation
@@ -107,27 +91,12 @@
             }
         }
 
-        public static float SpeedMotor(int numDB)
-        {
-            // Initialisation
-            var res = -1; // Résultat de la fonction
-            byte[] Buffer = new byte[4]; // Buffer 2 bytes
-
-            if (Main._statusConnection)
-            {
-                res = Main.Client.DBRead(numDB, 56, 4, Buffer);
-                return S7.GetRealAt(Buffer, 0);
-                //return 0;
-            }
-            else
-                return 0;
-        }
-
         public static void StateMotor(int numDB)
         {
             // Initialisation
             var res = -1; // Résultat de la fonction
             byte[] Buffer = new byte[2]; // Buffer 2 bytes
+            byte[] BufferBis = new byte[55]; // Buffer 10 bytes
 
             if (Main._statusConnection)
             {
@@ -137,6 +106,15 @@
             BitArray arBits = new BitArray(Buffer); // Convert buffer bytes to array of bits
             for (int i = 0; i < 15; i++)
                 Main._arStateMotor.Add(arBits.Get(i)); // Fill the array
+
+            if (Main._statusConnection)
+            {
+                res = Main.Client.DBRead(numDB, 56, 55, BufferBis);
+            }
+
+            Main._dspdMotor = S7.GetRealAt(BufferBis, 0);
+            Main._dintMotor = S7.GetIntAt(BufferBis, 6)/10;
+            Main._dspdFMotor = S7.GetDIntAt(BufferBis, 48) / 100;
         }
 
         public static Double StrToDouble(string sVal, char Separator, long Precision)
