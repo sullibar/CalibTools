@@ -7,8 +7,10 @@
     using System.Drawing;
     using System.Threading;
     using System.Windows.Forms;
+    using MaterialSkin;
+    using MaterialSkin.Controls;
 
-    public partial class Main : Form
+    public partial class Main : MaterialSkin.Controls.MaterialForm
     {
         public static List<bool> _arStateMotor = new List<bool>();
         public static bool _statusConnection;
@@ -30,50 +32,31 @@
 
         private static string spdMotor;
 
+        // Charts
         private double[] cpuArray = new double[60];
-        private Thread cpuThread;
         private double[] intensityArray = new double[60];
 
         public Main()
         {
             InitializeComponent();
 
-            //var DLL = Assembly.LoadFile(@"C:\Users\sullivan.bardot\source\repos\CalibTools\CalibTools\snap7.dll");
+            // Create a material theme manager and add the form to manage (this)
+            MaterialSkinManager materialSkinManager = MaterialSkinManager.Instance;
+            materialSkinManager.AddFormToManage(this);
+            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
 
-            //foreach (Type type in DLL.GetExportedTypes())
-            //{
-            //    dynamic c = Activator.CreateInstance(type);
-            //    //c.Output(@"Hello");
-            //}
-
-            // Initialisation de la tâche de fond (affichage)
-            bwDisplay.WorkerReportsProgress = true;
-            bwDisplay.WorkerSupportsCancellation = true;
-            bwDisplay.DoWork += new DoWorkEventHandler(bwDisplay_DoWork);
-            //bwDisplay.ProgressChanged += new ProgressChangedEventHandler(bwDisplay_ProgressChanged);
-            bwDisplay.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwDisplay_RunWorkerCompleted);
+            // Configure color schema
+            materialSkinManager.ColorScheme = new ColorScheme(
+                Primary.Blue400, Primary.Blue500,
+                Primary.Blue500, Accent.LightBlue200,
+                TextShade.WHITE
+            );
 
             // Initialisation de la tâche de fond (travail)
             bwWork.WorkerReportsProgress = true;
             bwWork.WorkerSupportsCancellation = true;
             bwWork.DoWork += new DoWorkEventHandler(bwWork_DoWork);
-            //bwDisplay.ProgressChanged += new ProgressChangedEventHandler(bwDisplay_ProgressChanged);
             bwWork.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwWork_RunWorkerCompleted);
-        }
-
-        private void boxAdresseIp_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            //    if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
-            //(e.KeyChar != '.'))
-            //    {
-            //        e.Handled = true;
-            //    }
-
-            //    // only allow one decimal point
-            //    if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -3))
-            //    {
-            //        e.Handled = true;
-            //    }
         }
 
         private void boxCalibSpeed_KeyPress(object sender, KeyPressEventArgs e)
@@ -107,52 +90,14 @@
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            bWriteBump = true;
-            numDB = Int32.Parse("1" + boxMotor.Text);
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            bWriteForceOn = true;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            bWriteCalibSpeed = true;
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            bWriteReset = true;
-        }
-
         private void button6_Click(object sender, EventArgs e)
         {
-            bWriteMesSpeed = true;
+            
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            bCheckAllDbsDiag = true;
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-            cpuThread = new Thread(new ThreadStart(getPerformanceCounters));
-            cpuThread.IsBackground = true;
-            cpuThread.Start();
-        }
-
-        private void bwDisplay_DoWork(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-        }
-
-        private void bwDisplay_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            bwDisplay.RunWorkerAsync();
+            
         }
 
         private void bwWork_DoWork(object sender, DoWorkEventArgs e)
@@ -228,6 +173,13 @@
                     }
                 }
             }
+
+            // Charts
+            cpuArray[cpuArray.Length - 1] = Math.Round(dspdMotor, 0);
+            Array.Copy(cpuArray, 1, cpuArray, 0, cpuArray.Length - 1);
+
+            intensityArray[intensityArray.Length - 1] = Math.Round(dintMotor, 0);
+            Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
         }
 
         private void bwWork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -352,7 +304,9 @@
                 }
 
                 // Vitesse moteur
-                label5.Text = spdMotor;
+                lblSpeed.Text = "Vitesse:" + spdMotor;
+
+                
             }
 
             if (!_statusConnection)
@@ -366,6 +320,16 @@
                 lblMot7.ForeColor = System.Drawing.Color.Black;
                 lblMot8.ForeColor = System.Drawing.Color.Black;
                 lblMot9.ForeColor = System.Drawing.Color.Black;
+            }
+
+            // Charts
+            if (cpuChart.IsHandleCreated)
+            {
+                Invoke((MethodInvoker)delegate { UpdateCpuChart(); });
+            }
+            else
+            {
+                //......
             }
         }
 
@@ -384,31 +348,6 @@
             }
 
             sr.Close();
-        }
-
-        private void getPerformanceCounters()
-        {
-            //var cpuPerfCounter = new PerformanceCounter("Processor Information", "% Processor Time", "_Total");
-
-            while (true)
-            {
-                cpuArray[cpuArray.Length - 1] = Math.Round(dspdMotor, 0);
-                Array.Copy(cpuArray, 1, cpuArray, 0, cpuArray.Length - 1);
-
-                intensityArray[intensityArray.Length - 1] = Math.Round(dintMotor, 0);
-                Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
-
-                if (cpuChart.IsHandleCreated)
-                {
-                    Invoke((MethodInvoker)delegate { UpdateCpuChart(); });
-                }
-                else
-                {
-                    //......
-                }
-
-                Thread.Sleep(1000);
-            }
         }
 
         private void listBox1_Click(object sender, EventArgs e)
@@ -468,19 +407,32 @@
             {
                 chart2.Series["Series1"].Points.AddY(intensityArray[i]);
             }
+        }
 
-            //chart3.Series["Series1"].Points.Clear();
-            //chart3.Series[0].C
-            //chart3.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            //chart3.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            //chart3.BackColor = Color.Transparent;
-            //chart2.Series[0].IsVisibleInLegend = false;
-            //chart2.ChartAreas[0].BackColor = Color.Transparent;
+        private void btnBump_Click(object sender, EventArgs e)
+        {
+            bWriteBump = true;
+            numDB = Int32.Parse("1" + boxMotor.Text);
+        }
 
-            //for (int i = 0; i < intensityArray.Length - 1; ++i)
-            //{
-            //    chart2.Series["Series1"].Points.AddY(intensityArray[i]);
-            //}
+        private void btnForceOn_Click(object sender, EventArgs e)
+        {
+            bWriteForceOn = true;
+        }
+
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            bWriteReset = true;
+        }
+
+        private void btnScan_Click(object sender, EventArgs e)
+        {
+            bCheckAllDbsDiag = true;
+        }
+
+        private void btnWriteSpd_Click(object sender, EventArgs e)
+        {
+            bWriteMesSpeed = true;
         }
     }
 }
