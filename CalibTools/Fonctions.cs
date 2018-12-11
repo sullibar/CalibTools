@@ -75,6 +75,30 @@
             }
         }
 
+        public static void ForceCalib(int numDB)
+        {
+            // Initialisation
+            var res = -1; // Résultat de la fonction
+            byte[] Buffer = new byte[1]; // Buffer 1 byte
+            bool val;
+
+            if (Main._statusConnection)
+            {
+                res = Main.Client.DBRead(numDB, 102, 1, Buffer);
+                val = S7.GetBitAt(Buffer, 0, 3);
+                if (val == false)
+                {
+                    S7.SetBitAt(ref Buffer, 0, 3, true);
+                    res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write false
+                }
+                else
+                {
+                    S7.SetBitAt(ref Buffer, 0, 3, false);
+                    res = Main.Client.DBWrite(numDB, 102, 1, Buffer); // Write true
+                }
+            }
+        }
+
         public static void Reset()
         {
             // Initialisation

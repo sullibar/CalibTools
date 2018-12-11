@@ -1,21 +1,24 @@
 ﻿namespace CalibTools
 {
     using MaterialSkin;
-    using Snap7;
+    using Sharp7;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Drawing;
+    using System.IO;
+    using System.Threading;
     using System.Windows.Forms;
 
     public partial class Main : MaterialSkin.Controls.MaterialForm
     {
         public static List<bool> _arStateMotor = new List<bool>();
-        public static bool _statusConnection;
-        public static double _dspdMotor;
         public static double _dintMotor;
         public static double _dspdFMotor;
-
+        public static double _dspdMotor;
+        public static bool _statusConnection;
+        public static BackgroundWorker bwChart = new BackgroundWorker();
+        public static BackgroundWorker bwScanner = new BackgroundWorker();
         public static BackgroundWorker bwWork = new BackgroundWorker();
         public static S7Client Client = new S7Client();
         public static List<string> listDbsDiag = new List<string>();
@@ -23,17 +26,18 @@
 
         private static bool bWriteBump;
         private static bool bWriteCalibSpeed;
+        private static bool bWriteForceCalib;
         private static bool bWriteForceOn;
         private static bool bWriteMesSpeed;
         private static bool bWriteReset;
-        private static string spdMotor;
         private static string intMotor;
         private static int numDB;
+        private static string spdMotor;
+
+        private double[] intensityArray = new double[120];
 
         // Charts
-        private double[] spdArray = new double[60];
-        private double[] intensityArray = new double[60];
-
+        private double[] spdArray = new double[120];
         public Main()
         {
             InitializeComponent();
@@ -45,8 +49,8 @@
 
             // Configure color schema
             materialSkinManager.ColorScheme = new ColorScheme(
-                Primary.Blue400, Primary.Blue500,
-                Primary.Blue500, Accent.LightBlue200,
+                Primary.Green400, Primary.Green500,
+                Primary.Green500, Accent.LightGreen200,
                 TextShade.WHITE
             );
 
@@ -55,6 +59,27 @@
             bwWork.WorkerSupportsCancellation = true;
             bwWork.DoWork += new DoWorkEventHandler(bwWork_DoWork);
             bwWork.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwWork_RunWorkerCompleted);
+
+            // Initialisation de la tâche de fond (chart)
+            bwChart.WorkerReportsProgress = true;
+            bwChart.WorkerSupportsCancellation = true;
+            bwChart.DoWork += new DoWorkEventHandler(bwChart_DoWork);
+            bwChart.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwChart_RunWorkerCompleted);
+
+            // Initialisation de la tâche de fond (scan Dbs diag)
+            bwScanner.WorkerReportsProgress = true;
+            bwScanner.WorkerSupportsCancellation = true;
+            bwScanner.DoWork += new DoWorkEventHandler(bwScanner_DoWork);
+            bwScanner.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwScanner_RunWorkerCompleted);
+
+            // Gauge
+            //360 mode enabled
+            circSpdMotor.From = 0;
+            circSpdMotor.To = 150;
+
+            circIntMotor.Uses360Mode = true;
+            circIntMotor.From = 0;
+            circIntMotor.To = 100;
         }
 
         private void boxCalibSpeed_KeyPress(object sender, KeyPressEventArgs e)
@@ -67,8 +92,7 @@
 
         private void boxMesSpeed_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
-        (e.KeyChar != '.'))
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
             {
                 e.Handled = true;
             }
@@ -94,6 +118,11 @@
             numDB = Int32.Parse("1" + boxMotor.Text);
         }
 
+        private void btnForceCalib_Click(object sender, EventArgs e)
+        {
+            bWriteForceCalib = true;
+        }
+
         private void btnForceOn_Click(object sender, EventArgs e)
         {
             bWriteForceOn = true;
@@ -112,6 +141,61 @@
         private void btnWriteSpd_Click(object sender, EventArgs e)
         {
             bWriteMesSpeed = true;
+        }
+
+        private void bwChart_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // Charts
+            spdArray[spdArray.Length - 1] = Math.Round(_dspdMotor, 0);
+            Array.Copy(spdArray, 1, spdArray, 0, spdArray.Length - 1);
+
+            intensityArray[intensityArray.Length - 1] = Math.Round(_dintMotor, 0);
+            Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
+
+            Thread.Sleep(1000);
+        }
+
+        private void bwChart_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //spdChart.Series[0].LegendText = spdMotor;
+
+            UpdateCpuChart();
+            bwChart.RunWorkerAsync();
+        }
+
+        private void bwScanner_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (_statusConnection)
+            {
+                // Check all Dbs diag
+                if (bCheckAllDbsDiag)
+                {
+                    listDbsDiag.Clear();
+                    for (int i = 100; i < 500; i++)
+                    {
+                        int dbToRead = i + 1000;
+                        int result = Fonctions.CheckDbsDiag(dbToRead);
+
+                        if (result == 0)
+                            listDbsDiag.Add("DB" + dbToRead.ToString() + " Moteur n°" + i.ToString());
+                    }
+                }
+            }
+        }
+
+        private void bwScanner_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (bCheckAllDbsDiag)
+            {
+                bCheckAllDbsDiag = false;
+                comboBox1.Items.Clear();
+                for (int i = 0; i < listDbsDiag.Count; i++)
+                {
+                    comboBox1.Items.Add(listDbsDiag[i]);
+                }
+
+                Fonctions.WriteListDbs(listDbsDiag);
+            }
         }
 
         private void bwWork_DoWork(object sender, DoWorkEventArgs e)
@@ -134,7 +218,7 @@
                 numDB = Int32.Parse("1" + boxMotor.Text);
                 _arStateMotor.Clear();
                 Fonctions.StateMotor(numDB);
-                spdMotor = _dspdMotor.ToString("0.00") + " M/min";
+                spdMotor = _dspdMotor.ToString("0.00") + " m/min";
                 intMotor = _dintMotor.ToString("00");
 
                 // Ecriture dans PLC
@@ -156,10 +240,16 @@
                     Fonctions.ForceOn(numDB);
                 }
 
+                if (bWriteForceCalib)
+                {
+                    bWriteForceCalib = false;
+                    Fonctions.ForceCalib(numDB);
+                }
+
                 if (bWriteCalibSpeed)
                 {
                     bWriteCalibSpeed = false;
-                    Fonctions.WriteCalibSpeed(numDB, progressBarSpdF.Value*100);
+                    Fonctions.WriteCalibSpeed(numDB, progressBarSpdF.Value * 100);
                 }
 
                 if (bWriteMesSpeed)
@@ -168,28 +258,7 @@
                     Double dtemp = Fonctions.StrToDouble(boxMesSpeed.Text, '.', 100);
                     Fonctions.WriteMesSpeed(numDB, dtemp);
                 }
-
-                // Check all Dbs diag
-                if (bCheckAllDbsDiag)
-                {
-                    listDbsDiag.Clear();
-                    for (int i = 100; i < 500; i++)
-                    {
-                        int dbToRead = i + 1000;
-                        int result = Fonctions.CheckDbsDiag(dbToRead);
-
-                        if (result == 0)
-                            listDbsDiag.Add("DB" + dbToRead.ToString() + " Moteur n°" + i.ToString());
-                    }
-                }
             }
-
-            // Charts
-            spdArray[spdArray.Length - 1] = Math.Round(_dspdMotor, 0);
-            Array.Copy(spdArray, 1, spdArray, 0, spdArray.Length - 1);
-
-            intensityArray[intensityArray.Length - 1] = Math.Round(_dintMotor, 0);
-            Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
         }
 
         private void bwWork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -301,24 +370,19 @@
                     lblMot9.ForeColor = System.Drawing.Color.Green;
                 }
 
-                if (bCheckAllDbsDiag)
-                {
-                    bCheckAllDbsDiag = false;
-                    listBox1.Items.Clear();
-                    for (int i = 0; i < listDbsDiag.Count; i++)
-                    {
-                        listBox1.Items.Add(listDbsDiag[i]);
-                    }
-
-                    Fonctions.WriteListDbs(listDbsDiag);
-                }
-
                 // Etat moteur
-                lblSpeed.Text = "Vitesse:" + spdMotor;
-                lblInt.Text = "Intensité:" + intMotor; 
                 progressBarSpdF.Value = (int)_dspdFMotor;
-                circIntMotor.Text = intMotor;
-                circIntMotor.Value = (int)Math.Round(_dintMotor, 0);
+
+                //circSpdMotor.Text = spdMotor;
+                //circSpdMotor.Value = (int)Math.Round(_dspdMotor, 0);
+                //circIntMotor.Text = intMotor;
+                int temp = Int32.Parse(intMotor);
+                if (temp < 101 && temp > 0)
+                    circIntMotor.Value = Int32.Parse(intMotor);
+                temp = (int)_dspdMotor;
+                lblSpeed.Text = "Vitesse de " + spdMotor;
+                if (temp < 151 && temp > 0)
+                    circSpdMotor.Value = temp;
             }
 
             if (!_statusConnection)
@@ -333,44 +397,37 @@
                 lblMot8.ForeColor = System.Drawing.Color.Black;
                 lblMot9.ForeColor = System.Drawing.Color.Black;
             }
-
-            // Charts
-            if (spdChart.IsHandleCreated)
+        }
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem != null)
             {
-                Invoke((MethodInvoker)delegate { UpdateCpuChart(); });
-            }
-            else
-            {
-                //......
+                //MessageBox.Show(listBox1.SelectedItem.ToString());
+                string s = comboBox1.SelectedItem.ToString();
+                string[] words = s.Split('°');
+                boxMotor.Text = words[1];
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //bwDisplay.RunWorkerAsync();
-
             // Chargement de l'index
             string dir = Application.StartupPath + "\\indexDbs.txt";
-            System.IO.StreamReader sr = new System.IO.StreamReader(dir);
-
-            string line;
-            while ((line = sr.ReadLine()) != null)
+            if (File.Exists(dir))
             {
-                listBox1.Items.Add(line);
+                System.IO.StreamReader sr = new System.IO.StreamReader(dir);
+
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    //listBox1.Items.Add(line);
+                    comboBox1.Items.Add(line);
+                }
+
+                sr.Close();
             }
 
-            sr.Close();
-        }
-
-        private void listBox1_Click(object sender, EventArgs e)
-        {
-            if (listBox1.SelectedItem != null)
-            {
-                //MessageBox.Show(listBox1.SelectedItem.ToString());
-                string s = listBox1.SelectedItem.ToString();
-                string[] words = s.Split('°');
-                boxMotor.Text = words[1];
-            }
+            //bwChart.RunWorkerAsync();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
@@ -386,6 +443,27 @@
             Properties.Settings.Default.Save();
         }
 
+        private void Main_SizeChanged(object sender, EventArgs e)
+        {
+            //spdChart.Width = this.Width - (listBox1.Width + listBox1.Margin.Left + 5);
+        }
+
+        private void materialFlatButton1_Click(object sender, EventArgs e)
+        {
+            progressBarSpdF.Value = progressBarSpdF.Value - 10;
+            bWriteCalibSpeed = true;
+        }
+
+        private void materialFlatButton2_Click(object sender, EventArgs e)
+        {
+            progressBarSpdF.Value = progressBarSpdF.Value + 10;
+            bWriteCalibSpeed = true;
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+        }
+
         private void timer_Tick(object sender, EventArgs e)
         {
             bool threadActif = bwWork.IsBusy;
@@ -396,41 +474,39 @@
 
         private void UpdateCpuChart()
         {
-            spdChart.Series["Series1"].Points.Clear();
-            spdChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            spdChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            spdChart.BackColor = Color.Transparent;
-            spdChart.Series[0].IsVisibleInLegend = false;
-            spdChart.ChartAreas[0].BackColor = Color.Transparent;
+            //spdChart.Series["Series1"].Points.Clear();
+            //spdChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
+            //spdChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
+            //spdChart.BackColor = Color.Transparent;
+            //spdChart.Series[0].IsVisibleInLegend = true;
+            //spdChart.ChartAreas[0].BackColor = Color.Transparent;
+            //spdChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Enabled = false;
+            //spdChart.ChartAreas["ChartArea1"].AxisY.LabelStyle.Enabled = false;
+            //spdChart.ChartAreas[0].AxisX.LineColor = spdChart.BackColor;
+            //spdChart.ChartAreas[0].AxisY.LineColor = spdChart.BackColor;
+            //spdChart.ChartAreas[0].AxisX.MajorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisX.MinorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisY.MajorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisY.MinorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            //spdChart.ChartAreas[0].AxisY.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
 
-            for (int i = 0; i < spdArray.Length - 1; ++i)
-            {
-                spdChart.Series["Series1"].Points.AddY(spdArray[i]);
-            }
+            //for (int i = 0; i < spdArray.Length - 1; ++i)
+            //{
+            //    spdChart.Series["Series1"].Points.AddY(spdArray[i]);
+            //}
 
-            intChart.Series["Series1"].Points.Clear();
-            intChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
-            intChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
-            intChart.BackColor = Color.Transparent;
-            intChart.Series[0].IsVisibleInLegend = false;
-            intChart.ChartAreas[0].BackColor = Color.Transparent;
+            //intChart.Series["Series1"].Points.Clear();
+            //intChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
+            //intChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
+            //intChart.BackColor = Color.Transparent;
+            //intChart.Series[0].IsVisibleInLegend = true;
+            //intChart.ChartAreas[0].BackColor = Color.Transparent;
 
-            for (int i = 0; i < intensityArray.Length - 1; ++i)
-            {
-                intChart.Series["Series1"].Points.AddY(intensityArray[i]);
-            }
-        }
-
-        private void materialFlatButton2_Click(object sender, EventArgs e)
-        {
-            progressBarSpdF.Value = progressBarSpdF.Value + 10;
-            bWriteCalibSpeed = true;
-        }
-
-        private void materialFlatButton1_Click(object sender, EventArgs e)
-        {
-            progressBarSpdF.Value = progressBarSpdF.Value - 10;
-            bWriteCalibSpeed = true;
+            //for (int i = 0; i < intensityArray.Length - 1; ++i)
+            //{
+            //    intChart.Series["Series1"].Points.AddY(intensityArray[i]);
+            //}
         }
     }
 }
