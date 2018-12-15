@@ -39,7 +39,6 @@
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.spdChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.boxAdresseIp = new MaterialSkin.Controls.MaterialSingleLineTextField();
-            this.circIntMotor = new CircularProgressBar.CircularProgressBar();
             this.btnWriteSpd = new MaterialSkin.Controls.MaterialFlatButton();
             this.boxMesSpeed = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.lblMot1 = new System.Windows.Forms.Label();
@@ -60,8 +59,21 @@
             this.btnForceOn = new MaterialSkin.Controls.MaterialFlatButton();
             this.btnBump = new MaterialSkin.Controls.MaterialFlatButton();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.solidGauge1 = new LiveCharts.WinForms.SolidGauge();
+            this.materialLabel1 = new MaterialSkin.Controls.MaterialLabel();
+            this.circIntMotor = new LiveCharts.WinForms.SolidGauge();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
+            this.solidGauge2 = new LiveCharts.WinForms.SolidGauge();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.materialLabel3 = new MaterialSkin.Controls.MaterialLabel();
+            this.solidGauge3 = new LiveCharts.WinForms.SolidGauge();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.spdChart)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -113,7 +125,7 @@
             series1.LegendText = "1";
             series1.Name = "Series1";
             this.spdChart.Series.Add(series1);
-            this.spdChart.Size = new System.Drawing.Size(1082, 261);
+            this.spdChart.Size = new System.Drawing.Size(1082, 159);
             this.spdChart.TabIndex = 30;
             this.spdChart.Text = "chart1";
             // 
@@ -134,41 +146,6 @@
             this.boxAdresseIp.TabIndex = 33;
             this.boxAdresseIp.Text = global::CalibTools.Properties.Settings.Default.Adresse_ip;
             this.boxAdresseIp.UseSystemPasswordChar = false;
-            // 
-            // circIntMotor
-            // 
-            this.circIntMotor.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.circIntMotor.AnimationFunction = WinFormAnimation.KnownAnimationFunctions.Liner;
-            this.circIntMotor.AnimationSpeed = 500;
-            this.circIntMotor.BackColor = System.Drawing.Color.Transparent;
-            this.circIntMotor.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Bold);
-            this.circIntMotor.ForeColor = System.Drawing.Color.Gray;
-            this.circIntMotor.InnerColor = System.Drawing.Color.White;
-            this.circIntMotor.InnerMargin = 0;
-            this.circIntMotor.InnerWidth = 0;
-            this.circIntMotor.Location = new System.Drawing.Point(958, 133);
-            this.circIntMotor.Margin = new System.Windows.Forms.Padding(4);
-            this.circIntMotor.MarqueeAnimationSpeed = 2000;
-            this.circIntMotor.Name = "circIntMotor";
-            this.circIntMotor.OuterColor = System.Drawing.Color.FromArgb(((int)(((byte)(195)))), ((int)(((byte)(195)))), ((int)(((byte)(195)))));
-            this.circIntMotor.OuterMargin = -17;
-            this.circIntMotor.OuterWidth = 17;
-            this.circIntMotor.ProgressColor = System.Drawing.Color.FromArgb(((int)(((byte)(137)))), ((int)(((byte)(64)))), ((int)(((byte)(169)))));
-            this.circIntMotor.ProgressWidth = 17;
-            this.circIntMotor.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.circIntMotor.SecondaryFont = new System.Drawing.Font("Microsoft Sans Serif", 15.75F);
-            this.circIntMotor.Size = new System.Drawing.Size(157, 161);
-            this.circIntMotor.StartAngle = 270;
-            this.circIntMotor.SubscriptColor = System.Drawing.Color.Gray;
-            this.circIntMotor.SubscriptMargin = new System.Windows.Forms.Padding(5, -20, 0, 0);
-            this.circIntMotor.SubscriptText = "";
-            this.circIntMotor.SuperscriptColor = System.Drawing.Color.Gray;
-            this.circIntMotor.SuperscriptMargin = new System.Windows.Forms.Padding(8, 20, 0, 0);
-            this.circIntMotor.SuperscriptText = "%";
-            this.circIntMotor.TabIndex = 52;
-            this.circIntMotor.Text = "0";
-            this.circIntMotor.TextMargin = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.circIntMotor.Value = 68;
             // 
             // btnWriteSpd
             // 
@@ -422,11 +399,125 @@
             this.comboBox1.TabIndex = 61;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // solidGauge1
+            // 
+            this.solidGauge1.BackColor = System.Drawing.Color.White;
+            this.solidGauge1.Location = new System.Drawing.Point(339, 376);
+            this.solidGauge1.Name = "solidGauge1";
+            this.solidGauge1.Size = new System.Drawing.Size(200, 100);
+            this.solidGauge1.TabIndex = 63;
+            this.solidGauge1.Text = "solidGauge1";
+            // 
+            // materialLabel1
+            // 
+            this.materialLabel1.AutoSize = true;
+            this.materialLabel1.BackColor = System.Drawing.Color.White;
+            this.materialLabel1.Depth = 0;
+            this.materialLabel1.Font = new System.Drawing.Font("Roboto", 11F);
+            this.materialLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialLabel1.Location = new System.Drawing.Point(111, 32);
+            this.materialLabel1.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel1.Name = "materialLabel1";
+            this.materialLabel1.Size = new System.Drawing.Size(82, 24);
+            this.materialLabel1.TabIndex = 66;
+            this.materialLabel1.Text = "Intensité";
+            // 
+            // circIntMotor
+            // 
+            this.circIntMotor.BackColor = System.Drawing.Color.White;
+            this.circIntMotor.Location = new System.Drawing.Point(59, 74);
+            this.circIntMotor.Name = "circIntMotor";
+            this.circIntMotor.Size = new System.Drawing.Size(193, 133);
+            this.circIntMotor.TabIndex = 65;
+            this.circIntMotor.Text = "solidGauge1";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.BackColor = System.Drawing.Color.White;
+            this.groupBox1.Controls.Add(this.materialLabel1);
+            this.groupBox1.Controls.Add(this.circIntMotor);
+            this.groupBox1.Location = new System.Drawing.Point(40, 81);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(325, 248);
+            this.groupBox1.TabIndex = 66;
+            this.groupBox1.TabStop = false;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.BackColor = System.Drawing.Color.White;
+            this.groupBox2.Controls.Add(this.materialLabel2);
+            this.groupBox2.Controls.Add(this.solidGauge2);
+            this.groupBox2.Location = new System.Drawing.Point(397, 81);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(325, 248);
+            this.groupBox2.TabIndex = 67;
+            this.groupBox2.TabStop = false;
+            // 
+            // materialLabel2
+            // 
+            this.materialLabel2.AutoSize = true;
+            this.materialLabel2.BackColor = System.Drawing.Color.White;
+            this.materialLabel2.Depth = 0;
+            this.materialLabel2.Font = new System.Drawing.Font("Roboto", 11F);
+            this.materialLabel2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialLabel2.Location = new System.Drawing.Point(111, 32);
+            this.materialLabel2.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel2.Name = "materialLabel2";
+            this.materialLabel2.Size = new System.Drawing.Size(82, 24);
+            this.materialLabel2.TabIndex = 66;
+            this.materialLabel2.Text = "Intensité";
+            // 
+            // solidGauge2
+            // 
+            this.solidGauge2.BackColor = System.Drawing.Color.White;
+            this.solidGauge2.Location = new System.Drawing.Point(59, 74);
+            this.solidGauge2.Name = "solidGauge2";
+            this.solidGauge2.Size = new System.Drawing.Size(193, 133);
+            this.solidGauge2.TabIndex = 65;
+            this.solidGauge2.Text = "solidGauge1";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.BackColor = System.Drawing.Color.White;
+            this.groupBox3.Controls.Add(this.materialLabel3);
+            this.groupBox3.Controls.Add(this.solidGauge3);
+            this.groupBox3.Location = new System.Drawing.Point(751, 81);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(325, 248);
+            this.groupBox3.TabIndex = 68;
+            this.groupBox3.TabStop = false;
+            // 
+            // materialLabel3
+            // 
+            this.materialLabel3.AutoSize = true;
+            this.materialLabel3.BackColor = System.Drawing.Color.White;
+            this.materialLabel3.Depth = 0;
+            this.materialLabel3.Font = new System.Drawing.Font("Roboto", 11F);
+            this.materialLabel3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialLabel3.Location = new System.Drawing.Point(111, 32);
+            this.materialLabel3.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel3.Name = "materialLabel3";
+            this.materialLabel3.Size = new System.Drawing.Size(82, 24);
+            this.materialLabel3.TabIndex = 66;
+            this.materialLabel3.Text = "Intensité";
+            // 
+            // solidGauge3
+            // 
+            this.solidGauge3.BackColor = System.Drawing.Color.White;
+            this.solidGauge3.Location = new System.Drawing.Point(59, 74);
+            this.solidGauge3.Name = "solidGauge3";
+            this.solidGauge3.Size = new System.Drawing.Size(193, 133);
+            this.solidGauge3.TabIndex = 65;
+            this.solidGauge3.Text = "solidGauge1";
+            // 
             // Main
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1130, 795);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.solidGauge1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.btnScan);
             this.Controls.Add(this.materialFlatButton2);
@@ -436,7 +527,6 @@
             this.Controls.Add(this.progressBarSpdF);
             this.Controls.Add(this.btnForceOn);
             this.Controls.Add(this.btnBump);
-            this.Controls.Add(this.circIntMotor);
             this.Controls.Add(this.btnWriteSpd);
             this.Controls.Add(this.boxMesSpeed);
             this.Controls.Add(this.lblMot1);
@@ -452,6 +542,7 @@
             this.Controls.Add(this.spdChart);
             this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
@@ -461,6 +552,12 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.spdChart)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -472,7 +569,6 @@
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.DataVisualization.Charting.Chart spdChart;
         private MaterialSkin.Controls.MaterialSingleLineTextField boxAdresseIp;
-        private CircularProgressBar.CircularProgressBar circIntMotor;
         private MaterialSkin.Controls.MaterialFlatButton btnWriteSpd;
         private MaterialSkin.Controls.MaterialSingleLineTextField boxMesSpeed;
         private System.Windows.Forms.Label lblMot1;
@@ -494,6 +590,16 @@
         private MaterialSkin.Controls.MaterialFlatButton btnBump;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ToolStripStatusLabel boxMotor;
+        private LiveCharts.WinForms.SolidGauge solidGauge1;
+        private MaterialSkin.Controls.MaterialLabel materialLabel1;
+        private LiveCharts.WinForms.SolidGauge circIntMotor;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private MaterialSkin.Controls.MaterialLabel materialLabel2;
+        private LiveCharts.WinForms.SolidGauge solidGauge2;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private MaterialSkin.Controls.MaterialLabel materialLabel3;
+        private LiveCharts.WinForms.SolidGauge solidGauge3;
     }
 }
 

@@ -71,6 +71,12 @@
             bwScanner.WorkerSupportsCancellation = true;
             bwScanner.DoWork += new DoWorkEventHandler(bwScanner_DoWork);
             bwScanner.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwScanner_RunWorkerCompleted);
+
+            // Initialise gauge
+            circIntMotor.Uses360Mode = true;
+            circIntMotor.From = 0;
+            circIntMotor.To = 100;
+            circIntMotor.Value = 0;
         }
 
         private void boxCalibSpeed_KeyPress(object sender, KeyPressEventArgs e)
@@ -136,21 +142,22 @@
 
         private void bwChart_DoWork(object sender, DoWorkEventArgs e)
         {
+            
             // Charts
             spdArray[spdArray.Length - 1] = Math.Round(_dspdMotor, 0);
             Array.Copy(spdArray, 1, spdArray, 0, spdArray.Length - 1);
 
-            intensityArray[intensityArray.Length - 1] = Math.Round(_dintMotor, 0);
-            Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
+            //intensityArray[intensityArray.Length - 1] = Math.Round(_dintMotor, 0);
+            //Array.Copy(intensityArray, 1, intensityArray, 0, intensityArray.Length - 1);
 
             Thread.Sleep(1000);
         }
 
         private void bwChart_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            spdChart.Series[0].LegendText = spdMotor;
-
+           
             UpdateCpuChart();
+            //spdChart.Series[0].LegendText = spdMotor;
             bwChart.RunWorkerAsync();
         }
 
@@ -364,9 +371,12 @@
                 // Etat moteur
                 progressBarSpdF.Value = (int)_dspdFMotor;
 
-                //circSpdMotor.Text = spdMotor;
-                //circSpdMotor.Value = (int)Math.Round(_dspdMotor, 0);
-                circIntMotor.Text = intMotor;
+
+                //circIntMotor2.Text = intMotor;
+                //int temp = Int32.Parse(intMotor);
+                //if (temp < 101 && temp > 0)
+                //    circIntMotor2.Value = Int32.Parse(intMotor);
+
                 int temp = Int32.Parse(intMotor);
                 if (temp < 101 && temp > 0)
                     circIntMotor.Value = Int32.Parse(intMotor);
@@ -384,6 +394,8 @@
                 lblMot8.ForeColor = System.Drawing.Color.Black;
                 lblMot9.ForeColor = System.Drawing.Color.Black;
             }
+
+            
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -461,27 +473,30 @@
 
         private void UpdateCpuChart()
         {
+            
+
+            for (int i = 0; i < spdArray.Length - 1; ++i)
+            {
+                spdChart.Series["Series1"].Points.AddY(spdArray[i]);
+            }
+
             spdChart.Series["Series1"].Points.Clear();
             spdChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
             spdChart.ChartAreas[0].AxisY.MajorGrid.LineWidth = 0;
             spdChart.BackColor = Color.Transparent;
             spdChart.Series[0].IsVisibleInLegend = true;
             spdChart.ChartAreas[0].BackColor = Color.Transparent;
-            spdChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Enabled = false;
-            spdChart.ChartAreas["ChartArea1"].AxisY.LabelStyle.Enabled = false;
-            spdChart.ChartAreas[0].AxisX.LineColor = spdChart.BackColor;
-            spdChart.ChartAreas[0].AxisY.LineColor = spdChart.BackColor;
-            spdChart.ChartAreas[0].AxisX.MajorGrid.Enabled = false;
-            spdChart.ChartAreas[0].AxisX.MinorGrid.Enabled = false;
-            spdChart.ChartAreas[0].AxisY.MajorGrid.Enabled = false;
-            spdChart.ChartAreas[0].AxisY.MinorGrid.Enabled = false;
+            //spdChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Enabled = false;
+            //spdChart.ChartAreas["ChartArea1"].AxisY.LabelStyle.Enabled = false;
+            //spdChart.ChartAreas[0].AxisX.LineColor = spdChart.BackColor;
+            //spdChart.ChartAreas[0].AxisY.LineColor = spdChart.BackColor;
+            //spdChart.ChartAreas[0].AxisX.MajorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisX.MinorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisY.MajorGrid.Enabled = false;
+            //spdChart.ChartAreas[0].AxisY.MinorGrid.Enabled = false;
             spdChart.ChartAreas[0].AxisX.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
             spdChart.ChartAreas[0].AxisY.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-
-            for (int i = 0; i < spdArray.Length - 1; ++i)
-            {
-                spdChart.Series["Series1"].Points.AddY(spdArray[i]);
-            }
+            //spdChart.Series[0].LegendText = spdMotor;
 
             //intChart.Series["Series1"].Points.Clear();
             //intChart.ChartAreas[0].AxisX.MajorGrid.LineWidth = 0;
